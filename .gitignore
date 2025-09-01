@@ -1,0 +1,52 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environment
+venv/
+.env/
+
+# FastAPI specific
+*.log
+*.db
+instance/
+*.sqlite3
+
+# Environment variables
+.env
+.env.*
+
+# Pytest
+.pytest_cache/
+*.pytest_cache
+
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Windows
+Thumbs.db
