@@ -18,6 +18,7 @@ class UserLogin(BaseModel):
     pasword: str
  
 
+@router.post("/signup" , status_code=status.HTTP_201_CREATED)
 def signup(user: UserCreate, db: Session = Depends(get_db)): 
     #Check if user with same username or email already exists 
     db_user = db.query(User).filter(User.email == user.email).first() 
@@ -38,3 +39,4 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user) 
 
     return {"msg": "User created sucesfully", "user_id": new_user.id} 
+
