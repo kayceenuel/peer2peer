@@ -21,7 +21,7 @@ class UserLogin(BaseModel):
 @router.post("/signup" , status_code=status.HTTP_201_CREATED)
 def signup(user: UserCreate, db: Session = Depends(get_db)): 
     #Check if user with same username or email already exists 
-    db_user = db.query(User).filter(User.email == user.email).first() 
+    db_user = db.query(User).filter(User.email == user.email).first() # check by email 
     if db_user: 
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
@@ -44,8 +44,8 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
 def login(user: UserLogin, db: Session = Depends(get_db)):
     # Authenticate user and generate tokens 
     db_user = db.query(User).filter(User.email == user.email).first()
-    if not db_user or not verify_password(user.password, db_user.password_hash):
-        raise HTTPException(
+    if not db_user or not verify_password(user.password, db_user.password_hash): # verify password
+        raise HTTPException( # raise error if authentication fails 
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password"
         )
