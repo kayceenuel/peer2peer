@@ -40,6 +40,7 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
 
     return {"msg": "User created sucesfully", "user_id": new_user.id} 
 
+@router.post("/login")
 def login(user: UserLogin, db: Session = Depends(get_db)):
     # Authenticate user and generate tokens 
     db_user = db.query(User).filter(User.email == user.email).first()
