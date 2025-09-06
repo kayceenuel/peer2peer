@@ -17,3 +17,24 @@ class UserLogin(BaseModel):
     username: str 
     pasword: str
  
+
+def signup(user: UserCreate, db: Session = Depends(get_db)): 
+    #Check if user with same username or email already exists 
+    db_user = db.query(User).filter(User.email == user.email).first() 
+    if db_user: 
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="Email already registered")
+    
+    hashed_password = get_hashed_password(user.password)
+    new_user = User(
+        username=user.username, # 
+        email=user.email, 
+        password_hash=hashed_password, 
+        balance=0.0 #initial balance set to 0.0
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user) 
+
+    return {"msg": "User created sucesfully", "user_id": new_user.id} 
