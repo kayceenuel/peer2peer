@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, fun
 from sqlalchemy.orm import relationship
 from database import Base 
 
+# SQLAlchemy models for db tables
 class User(Base): 
     __tablename__ = "users" 
 
@@ -14,6 +15,7 @@ class User(Base):
     transactions_sent = relationship("Transaction", foreign_keys="Transactions.sender_id")
     transactions_received = relationship("Transaction", foreign_keys="Transactions.receiver_id")
 
+# Transaction model to record transactions between users.
 class Transaction(Base): 
     __tablename__ = "transactions" 
 
