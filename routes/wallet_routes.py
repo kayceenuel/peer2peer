@@ -9,3 +9,12 @@ router = APIRouter()
 @router.get("/balance")
 def get_balance(current_user: User = Depends(get_current_user)): 
     return {"balance": current_user.balance}
+
+@router.post("/transfer")
+def send_money(
+    receiver_email: str, 
+    amount: float, 
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(get_current_user) 
+):
+
