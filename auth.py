@@ -2,7 +2,7 @@ from passlib.context import CryptContext
 import os # for env variables
 from datetime import datetime, timedelta
 from typing import Union, Any
-from jose import jwt
+from jose import jwt, JWTError
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 30 # Token expiration time in minutes 
 REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # Refresh token expiration time in mintes (7 days)
@@ -38,3 +38,10 @@ def create_refresh_token(subject: Union[str, Any], expires_delta: int = None) ->
     to_encode = {"exp": expires_delta, "sub": str(subject)}
     encoded_jwt = jwt.encode(to_encode, JWT_REFRESH_SECRET_KEY, ALGORITHM)
     return encoded_jwt
+
+def decode_access_token(token: str):
+    try: 
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[ALGORITHM])
+        return payload.get("sub")
+    except JWTError: 
+        return None 
