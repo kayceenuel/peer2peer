@@ -41,3 +41,13 @@ def send_money(
         "transaction_id": transaction.id,
         "balance": current_user.balance,
     }
+
+@router.get("/transactions")
+def transaction_history(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    sent = db.query(Transaction).filter(Transaction.sender_id == current_user.id).all()
+    received = db.query(Transaction).filter(Transaction.receiver_id == current_user.id).all()
+
+    return {
+        "sent": [{"to": tx.receiver_id, "amount": tx.amount, "timestamp": tx.timestamp} for tx in sent],
+        "received": [{"from": tx.sender_id, "amount": tx.amount, "timestamp": tx.timestamp} for tx in received],
+    }
