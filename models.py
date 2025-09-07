@@ -10,10 +10,10 @@ class User(Base):
     username = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=False)
-    balance = Column(Float, defatult=0.0)
+    balance = Column(Float, default=0.0)
 
-    transactions_sent = relationship("Transaction", foreign_keys="Transactions.sender_id")
-    transactions_received = relationship("Transaction", foreign_keys="Transactions.receiver_id")
+    transactions_sent = relationship("Transaction", foreign_keys="Transaction.sender_id")
+    transactions_received = relationship("Transaction", foreign_keys="Transaction.receiver_id")
 
 # Transaction model to record transactions between users.
 class Transaction(Base): 
