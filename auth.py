@@ -1,15 +1,18 @@
 from passlib.context import CryptContext
+from dotenv import load_dotenv
 import os # for env variables
 from datetime import datetime, timedelta
 from typing import Union, Any
 from jose import jwt, JWTError
 
+load_dotenv() #load env variables from .env file
+
 ACCESS_TOKEN_EXPIRE_MINUTES = 30 # Token expiration time in minutes 
 REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # Refresh token expiration time in mintes (7 days)
 ALGORITHM = "HS256"
-JWT_SECRET_KEY = os.environ['JWT_SECRET_KEY'] 
-JWT_REFRESH_SECRET_KEY = os.environ['JWT_REFRESH_SECRET_KEY']
 
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "fallback_access_secret")
+JWT_REFRESH_SECRET_KEY = os.getenv("JWT_REFRESH_SECRET_KEY", "fallback_refresh_secret")
 
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
