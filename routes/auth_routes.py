@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status  # Import modules from FastAPI
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
+from jose import jwt, JWTError
 from pydantic import BaseModel 
 from database import get_db
 from models import User 
-from auth import get_hashed_password, verify_password, create_access_token, create_refresh_token, decode_access_token# import auth functions 
+from auth import get_hashed_password, verify_password, create_access_token, create_refresh_token, decode_access_token, JWT_SECRET_KEY, ALGORITHM # import auth functions 
 
 router = APIRouter() #Define a router for auth related routes 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -61,17 +62,17 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
         "token_type": "bearer"
     }
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)): 
-    user_id = decode_access_token(token)
-    if not user_id: 
-        raise HTTPException(
-            status_code=401, 
-            detail="Invalid or expired token"
-        )
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    try:
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+
     user = db.query(User).filter(User.id == int(user_id)).first()
-    if not user: 
-        raise HTTPException(
-            status_code=404, 
-            detail="User not found"
-        )
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
     return user
