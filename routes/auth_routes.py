@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status  # Import modules from FastAPI
 from sqlalchemy.orm import Session
+from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel 
 from database import get_db
 from models import User 
-from auth import get_hashed_password, verify_password, create_access_token, create_refresh_token # import auth functions 
+from auth import get_hashed_password, verify_password, create_access_token, create_refresh_token, decode_access_token# import auth functions 
 
 router = APIRouter() #Define a router for auth related routes 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 # pydantic models for request and reponse bodies
 class UserCreate(BaseModel): 
@@ -15,7 +17,7 @@ class UserCreate(BaseModel):
 
 class UserLogin(BaseModel):
     username: str 
-    pasword: str
+    password: str
  
 
 @router.post("/signup" , status_code=status.HTTP_201_CREATED)
@@ -58,3 +60,18 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
         "refresh_token": refresh_token, 
         "token_type": "bearer"
     }
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)): 
+    user_id = decode_access_token(token)
+    if not user_id: 
+        raise HTTPException(
+            status_code=401, 
+            detail="Invalid or expired token"
+        )
+    user = db.query(User).filter(User.id == int(user_id)).first()
+    if not user: 
+        raise HTTPException(
+            status_code=404, 
+            detail="User not found"
+        )
+    return user
