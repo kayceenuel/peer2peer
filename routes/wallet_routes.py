@@ -10,11 +10,34 @@ router = APIRouter()
 def get_balance(current_user: User = Depends(get_current_user)): 
     return {"balance": current_user.balance}
 
-@router.post("/transfer")
+@router.post("/send")
 def send_money(
-    receiver_email: str, 
-    amount: float, 
-    db: Session = Depends(get_db), 
-    current_user: User = Depends(get_current_user) 
+    receiver_email: str,
+    amount: float,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
+    if amount <= 0:
+        raise HTTPException(status_code=400, detail="Amount must be greater than zero")
 
+    if current_user.balance < amount:
+        raise HTTPException(status_code=400, detail="Insufficient balance")
+
+    receiver = db.query(User).filter(User.email == receiver_email).first()
+    if not receiver:
+        raise HTTPException(status_code=404, detail="Receiver not found")
+
+    # Update balances
+    current_user.balance -= amount
+    receiver.balance += amount
+
+    transaction = Transaction(sender_id=current_user.id, receiver_id=receiver.id, amount=amount)
+    db.add(transaction)
+    db.commit()
+    db.refresh(transaction)
+
+    return {
+        "msg": f"Sent {amount} to {receiver.email}",
+        "transaction_id": transaction.id,
+        "balance": current_user.balance,
+    }
